@@ -1432,14 +1432,25 @@ function isPhoneValid(value) {
     /* Boutons "Commander" : on scrolle vers le formulaire, et si c'est le bouton du
        formulaire, on lance la validation + le récapitulatif */
     document.querySelectorAll(".js-whatsapp").forEach(function (button) {
-      button.addEventListener("click", function (event) {
-        event.preventDefault();
-        document.getElementById("commande").scrollIntoView({ behavior: "smooth", block: "start" });
-        if (button.closest(".order-box")) {
-          openWhatsApp();
-        }
-      });
-    });
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    document.getElementById("commande").scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (button.closest(".order-box")) {
+      // bouton DANS le formulaire -> validation + AddToCart (déjà géré)
+      openWhatsApp();
+    } else {
+      // bouton "Commander" du haut ou de la barre flottante -> ViewContent
+      if (typeof fbq === "function") {
+        fbq("track", "ViewContent", {
+          content_name: CONFIG.productName,
+          value: selectedPrice(),
+          currency: CONFIG.currency
+        });
+      }
+    }
+  });
+});
  
     /* Boutons du pop-up récapitulatif */
     document.getElementById("recapConfirm").addEventListener("click", confirmOrder);
