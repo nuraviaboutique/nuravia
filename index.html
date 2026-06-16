@@ -1234,7 +1234,7 @@ modifier la 4e img de description
         </label>
         <label for="phone">
           Numéro de téléphone
-          <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ex : 07 00 00 00 00">
+          <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Ex : 07 00 00 00 00" maxlength="10">
         </label>
         <label for="city">
           Lieu de livraison
@@ -1337,15 +1337,22 @@ modifier la 4e img de description
         "Lieu de livraison : " + cityInput.value.trim()
       ].join("\n");
     }
+
+    /* Vérifie un numéro ivoirien : 10 chiffres commençant par 01, 05 ou 07 */
+function isPhoneValid(value) {
+  const num = value.replace(/\D/g, "");        // garde uniquement les chiffres
+  return /^(01|05|07)\d{8}$/.test(num);        // préfixe + 8 chiffres = 10 au total
+}
  
     /* Étape 1 : on valide, puis on affiche le récapitulatif (pas encore WhatsApp) */
     function openWhatsApp() {
-      if (!nameInput.value.trim() || !phoneInput.value.trim() || !cityInput.value.trim()) {
+      if (!nameInput.value.trim() || !isPhoneValid(phoneInput.value) || !cityInput.value.trim()) {
         formError.classList.add("show");
         document.getElementById("commande").scrollIntoView({ behavior: "smooth", block: "start" });
         if (!nameInput.value.trim()) {
           nameInput.focus();
-        } else if (!phoneInput.value.trim()) {
+        } else if (!isPhoneValid(phoneInput.value)) {
+          formError.textContent = "Entrez un numéro ivoirien valide (10 chiffres, commençant par 01, 05 ou 07).";
           phoneInput.focus();
         } else {
           cityInput.focus();
@@ -1354,7 +1361,12 @@ modifier la 4e img de description
       }
  
       formError.classList.remove("show");
- 
+       if (typeof fbq === "function") {
+        fbq("track", "AddToCart", {
+          value: selectedPrice(),
+          currency: CONFIG.currency
+        });
+        formError.textContent = "Merci de renseigner votre nom, votre numéro et votre lieu.";
       // Remplit le récapitulatif avec les infos saisies
       document.getElementById("recapProduct").textContent = CONFIG.productName;
       document.getElementById("recapQty").textContent = qty.value;
@@ -1377,7 +1389,12 @@ modifier la 4e img de description
  
     /* Étape 2 : la cliente confirme -> Lead + ouverture WhatsApp */
     function confirmOrder() {
-      trackLead(selectedPrice());
+      if (typeof fbq === "function") {
+        fbq("track", "InitiateCheckout", {
+          value: selectedPrice(),
+          currency: CONFIG.currency
+        });
+      }
       const message = encodeURIComponent(buildMessage());
       const url = "https://wa.me/" + CONFIG.whatsappNumber + "?text=" + message;
       window.open(url, "_blank", "noopener");
