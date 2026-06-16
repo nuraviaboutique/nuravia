@@ -1079,7 +1079,7 @@ Chaque balise <li> = 1 avantage
 
     <div class="ae-review-slider">
   
-    </section>
+    
 
 <div class="ae-review active">
 
@@ -1108,8 +1108,9 @@ Merci pour la ceinture, je n'ai rien à dire mais votre livreur m'a fatigué
 <div class="ae-footer">
 Acheteur vérifié | 21 janv. 2026
 </div>
-
 </div>
+
+
 </div>
 
 <div class="ae-photos">
@@ -1120,6 +1121,7 @@ Acheteur vérifié | 21 janv. 2026
 </div>
 
 </div>
+</section>
 
       <!-- ==================================================
 FAQ
@@ -1360,13 +1362,17 @@ function isPhoneValid(value) {
         return;
       }
  
-      formError.classList.remove("show");
-       if (typeof fbq === "function") {
+     formError.classList.remove("show");
+      formError.textContent = "Merci de renseigner votre nom, votre numéro et votre lieu.";
+
+      // Formulaire rempli et validé -> AddToCart
+      if (typeof fbq === "function") {
         fbq("track", "AddToCart", {
           value: selectedPrice(),
           currency: CONFIG.currency
         });
-        formError.textContent = "Merci de renseigner votre nom, votre numéro et votre lieu.";
+      }
+
       // Remplit le récapitulatif avec les infos saisies
       document.getElementById("recapProduct").textContent = CONFIG.productName;
       document.getElementById("recapQty").textContent = qty.value;
@@ -1374,7 +1380,7 @@ function isPhoneValid(value) {
       document.getElementById("recapName").textContent = nameInput.value.trim();
       document.getElementById("recapPhone").textContent = phoneInput.value.trim();
       document.getElementById("recapCity").textContent = cityInput.value.trim();
- 
+
       // Affiche la fenêtre
       document.getElementById("recapModal").classList.add("show");
       document.body.style.overflow = "hidden";
